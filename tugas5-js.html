@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tugas 5 Javascript</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      background-color: #f4f6f8;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h2, h3 {
+      color: #2c3e50;
+      margin-top: 0;
+    }
+    .form-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .form-group input {
+      flex: 1;
+      min-width: 150px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    .btn-add {
+      background-color: #27ae60;
+      color: white;
+    }
+    .btn-add:hover {
+      background-color: #219150;
+    }
+    .btn-delete {
+      background-color: #e74c3c;
+      color: white;
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+    .btn-delete:hover {
+      background-color: #c0392b;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #e0e0e0;
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background-color: #34495e;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    .empty-msg {
+      text-align: center;
+      color: #7f8c8d;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Aplikasi Manajemen Produk Toko Online</h2>
+    
+    <!-- Form Tambah Produk -->
+    <form id="formTambahProduk">
+      <div class="form-group">
+        <input type="number" id="inputID" placeholder="ID Produk" required>
+        <input type="text" id="inputNama" placeholder="Nama Produk" required>
+        <input type="number" id="inputHarga" placeholder="Harga (Rp)" required>
+        <button type="submit" class="btn-add">Tambah Produk</button>
+      </div>
+    </form>
+
+    <h3>Daftar Produk</h3>
+    <!-- Tabel Tempat Menampilkan Produk -->
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nama Produk</th>
+          <th>Harga</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="tabelProduk">
+        <!-- Data produk akan dirender di sini melalui JavaScript -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+  // 1. Data Produk 
+  let produkList = [
+    { id: 1, nama: "Laptop", harga: 12000000 },
+    { id: 2, nama: "Smartphone", harga: 5000000 },
+    { id: 3, nama: "Headphone", harga: 1500000 },
+    { id: 4, nama: "Keyboard", harga: 800000 },
+    { id: 5, nama: "Mouse", harga: 400000 }
+  ];
+
+  // 2. Menampilkan produk 
+  function tampilkanProduk() {
+    const tabelBody = document.getElementById("tabelProduk");
+    tabelBody.innerHTML = ""; 
+
+    if (produkList.length === 0) {
+      tabelBody.innerHTML = `<tr><td colspan="4" class="empty-msg">Tidak ada produk tersedia.</td></tr>`;
+      console.log("Status: Tabel kosong.");
+      return;
+    }
+
+    produkList.forEach((produk) => {
+      const { id, nama, harga } = produk;
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${id}</td>
+        <td>${nama}</td>
+        <td>Rp ${harga.toLocaleString('id-ID')}</td>
+        <td>
+          <button class="btn-delete" onclick="eventHandler.hapus(${id})">Hapus</button>
+        </td>
+      `;
+      tabelBody.appendChild(row);
+    });
+
+    // Menampilkan array produkList terbaru ke Console
+    console.log("Daftar Produk Terbaru:", produkList);
+  }
+
+  // 3. Menambahkan produk dengan Spread Operator
+  function tambahProduk(produkBaru) {
+    produkList = [...produkList, produkBaru];
+    console.log("Produk berhasil ditambahkan:", produkBaru);
+  }
+
+  // 4. Menghapus produk dengan Rest Parameter
+  function hapusProduk(...idYangDihapus) {
+    produkList = produkList.filter(
+      (produk) => !idYangDihapus.includes(produk.id)
+    );
+    console.log(`Produk dengan ID ${idYangDihapus.join(", ")} telah dihapus.`);
+  }
+
+  // 5. Event Handler & Event Listener
+  const eventHandler = {
+    tambah: function (e) {
+      e.preventDefault();
+
+      const id = parseInt(document.getElementById("inputID").value);
+      const nama = document.getElementById("inputNama").value;
+      const harga = parseInt(document.getElementById("inputHarga").value);
+
+      if (produkList.some((p) => p.id === id)) {
+        console.warn(`Gagal menambah: ID ${id} sudah ada.`);
+        alert("ID Produk sudah ada, gunakan ID yang berbeda!");
+        return;
+      }
+
+      tambahProduk({ id, nama, harga });
+      tampilkanProduk();
+      document.getElementById("formTambahProduk").reset();
+    },
+
+    hapus: function (id) {
+      hapusProduk(id);
+      tampilkanProduk();
+    }
+  };
+
+  // Event Listener
+  document
+    .getElementById("formTambahProduk")
+    .addEventListener("submit", eventHandler.tambah);
+
+  // Initial Render
+  console.log("Aplikasi dimuat pertama kali.");
+  tampilkanProduk();
+</script>
+</body>
+</html>
